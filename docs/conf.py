@@ -4,6 +4,13 @@
 # list see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
+import os
+import sys
+sys.path.insert(0, os.path.abspath('..'))
+sys.path.append(os.path.abspath(
+    os.path.join(__file__, "../../src/histlabapi")
+))
+
 # -- Project information -----------------------------------------------------
 
 project = u"histlabapi"
@@ -15,7 +22,6 @@ author = u"Derrick Gozal"
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-import myst_nb
 
 extensions = [
     "myst_nb",
