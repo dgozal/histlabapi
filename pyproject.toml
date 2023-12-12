@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "histlabapi"
+version = "0.1.0"
+description = "A Python library that makes it easy for users to access data from the Columbia History Lab's database by functioning as a wrapper around the History Lab's API."
+authors = ["Derrick Gozal"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+requests = "^2.31.0"
+
+[tool.poetry.dev-dependencies]
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.3"
+myst-nb = "1.0.0rc0"
+sphinx-autoapi = "^3.0.0"
+sphinx-rtd-theme = "^2.0.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
