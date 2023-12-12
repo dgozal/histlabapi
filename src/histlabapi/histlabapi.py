@@ -161,7 +161,7 @@ def list_collections():
     
     Example
     -------
-    >>> import histlabapi as hl
+    >>> from histlabapi import histlabapi as hl
     >>> hl.list_collections()
     [{'corpus': 'frus', 'doc_cnt': 209046},
      {'corpus': 'cia', 'doc_cnt': 935716},
@@ -205,7 +205,7 @@ def hlab_overview(collection = None, sort = None, entity_type = None, start_date
     
     Example
     -------
-    >>> import histlabapi as hl
+    >>> from histlabapi import histlabapi as hl
     >>> hl.hlab_overview(collection = 'frus', sort = None, entity_type = 'person', limit = 5, run = False)
     'http://api.foiarchive.org/entities?entity_type=eq.person&corpus=eq.frus&limit=5'
     >>> hl.hlab_overview(collection = 'frus', sort = None, entity_type = 'person', limit = 5, run = True)
@@ -294,7 +294,7 @@ def hlab_search(text, fields = None, join_or = False, start_date = None, end_dat
     
     Example
     -------
-    >>> import histlabapi as hl
+    >>> from histlabapi import histlabapi as hl
     >>> hl.hlab_search('league of nations', run = False)
     'http://api.foiarchive.org/documents?and=(full_text.phfts.league%20of%20nations)&select=doc_id,authored,title&limit=25'
     >>> hl.hlab_search(['league of nations', 'trade'], fields = ['doc_id', 'title', 'countries'], join_or = True, limit = 5, run = True)
@@ -375,7 +375,7 @@ def find_entity_id(entity_type, value = None):
     
     Examples
     --------
-    >>> import histlabapi as hl
+    >>> from histlabapi import histlabapi as hl
     >>> hl.find_entity_id('person', 'Nixon')
     [{'full_name': 'Nixon, Patricia', 'person_id': '109881'},
      {'full_name': 'Nixon, Richard M.', 'person_id': '109882'},
@@ -457,7 +457,7 @@ def hlab_entity(country = None, topic = None, person = None, country_or = False,
     
     Examples
     --------
-    >>> import histlabapi as hl
+    >>> from histlabapi import histlabapi as hl
     >>> hl.hlab_entity(collection = 'frus', country = 'Belize', run = False, limit = 5)
     'http://api.foiarchive.org/documents?countries=cs.{Belize}&select=doc_id,authored,title&corpus=eq.frus&limit=5'
     >>> hl.hlab_entity(collection = 'frus', country = 'Belize', run = True, limit = 5)
@@ -592,7 +592,7 @@ def hlab_date(date = None, start_date = None, end_date = None, fields = None, co
     
     Examples
     --------
-    >>> import histlabapi as hl
+    >>> from histlabapi import histlabapi as hl
     >>> hl.hlab_date(date = '1955-01-20', collection = 'frus', limit = 5, run = False)
     'http://api.foiarchive.org/documents?&authored=eq.1955-01-20&select=doc_id,authored,title&corpus=eq.frus&limit=5'
     >>> hl.hlab_date(date = '1955-01-20', collection = 'frus', limit = 5, run = True)
@@ -683,7 +683,7 @@ def hlab_id(ids, fields = None, run = False):
     
     Examples
     --------
-    >>> import histlabapi as hl
+    >>> from histlabapi import histlabapi as hl
     >>> hl.hlab_search_id(ids = 'frus1969-76ve05p1d11', fields = ['doc_id','body','title',"persons"], run = False)
     'http://api.foiarchive.org/documents?doc_id=in.(frus1969-76ve05p1d11)&select=doc_id,body,title,persons'
     >>> hl.hlab_search_id(ids = 'frus1969-76ve05p1d11', fields = ['doc_id','title',"persons"], run = True)
