@@ -4,6 +4,9 @@
 # list see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
+import sys
+import os
+
 # -- Project information -----------------------------------------------------
 
 project = u"histlabapi"
