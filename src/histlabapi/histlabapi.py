@@ -1,4 +1,151 @@
-import utilities as util
+import requests
+from requests.exceptions import HTTPError
+import re
+
+
+#################################################################################################
+####################################### Utility Functions #######################################
+#################################################################################################
+
+def hlab_results(url):
+    try:
+        r = requests.get(url)
+        if r.json():
+            return r.json()
+        else:
+            print("No results found")
+    except HTTPError as http_err:
+        print(f'HTTP error occurred: {http_err}')
+
+def check_collection(x):
+    # can skip hardcode by running list_collection, but time tradeoff?
+    if x in ['frus', 'clinton', 'pdb', 'cfpf', 'kissinger', 'nato']:   # I based this off list_collection results, but in R more options?
+        return x
+    else:
+        raise Exception("Collection not found in History Lab database")
+        
+def check_entity_type(x):
+    if isinstance(x, list) == False:
+        if x in ['country', 'person', 'topic']:
+            return x
+        else:
+            raise Exception("Only acceptable entity types are 'country', 'person', and 'topic'")
+    else:
+        for i in x:
+            if i in ['country', 'person', 'topic']:
+                continue
+            else:
+                raise Exception("Only acceptable entity types are 'country', 'person', and 'topic'")
+        return x
+        
+def check_date(date):
+    if date:
+        check = re.search(r'^\d{4}-\d{2}-\d{2}$', date)
+        if check:
+            if int(date[5:7]) > 12:
+                raise Exception("Please enter a valid date with the format 'YYYY-MM-DD'")
+        else:
+            raise Exception("Please enter a valid date with the format 'YYYY-MM-DD'")
+        
+def check_date_range(start, end):
+    if start and end:
+        if int(end[0:4]) < int(start[0:4]):
+            raise Exception("End date must be later than start date")
+        elif (int(end[0:4]) == int(start[0:4])) and (int(end[5:7]) < int(start[5:7])):
+            raise Exception("End date must be later than start date")
+        elif (int(end[5:7]) == int(start[5:7])) and (int(end[0:4]) < int(start[0:4])) and (int(end[8:10]) < int(start[8:10])):
+            raise Exception("End date must be later than start date")
+        else:
+            pass
+    elif start and not(end):
+        raise Exception("Please provide an end date")
+    elif not(start) and end:
+        raise Exception("Please provide a start date")
+        
+def convert_to_list(x):
+    if isinstance(x, list) == False:
+        temp = []
+        if "," in x:
+            comma_split = re.split(",", x)
+            for i in comma_split:
+                temp.append(i.strip())
+        else:
+            temp.append(x)
+        return temp
+    else:
+        return x
+    
+def check_fields(x):
+    if x:
+        if isinstance(x, list) == False:
+            if x not in ["authored","body","body_html","body_summary","chapt_title","countries","collection","date","date_year","date_month",
+                     "from_field","doc_id","location","nuclear","persons","topics","classification","refs","cable_references","source","source_path",
+                     "cable_type","subject","title","to_field","tags","description","category","pdf","title_docview","orighand","concepts",
+                     "type","office","readability","persons","countries","person_ids"]:
+                raise Exception(f"Field Error: '{x}' not a valid field")
+        else:
+            invalids = []
+            for i in x:
+                if i in ["authored","body","body_html","body_summary","chapt_title","countries","collection","date","date_year","date_month",
+                         "from_field","doc_id","location","nuclear","persons","topics","classification","refs","cable_references","source","source_path",
+                         "cable_type","subject","title","to_field","tags","description","category","pdf","title_docview","orighand","concepts",
+                         "type","office","readability","persons","countries","person_ids"]:
+                    continue
+                else:
+                    invalids.append(i)
+            if invalids:
+                invalid_str = ''
+                count = 0
+                for i in invalids:
+                    if count == 0:
+                        invalid_str = invalid_str + i
+                    else:
+                        invalid_str = invalid_str + ", " + i
+                    count = count + 1
+                raise Exception(f"'{invalid_str}' is/are not valid field(s)")
+
+def config_search(search, join_or):
+    if join_or == False:
+        join = 'and=('
+    else:
+        join = 'or=('
+    url = join
+    for i in range(0, len(search)):
+        strip = search[i].strip()
+        subbed = re.sub(" ", "%20", strip)
+        if i%2 == 0:
+            temp = f"full_text.phfts.{subbed},"
+        else:
+            temp = f"full_text.wfts.{subbed},"
+        url = url + temp
+    url = url[:len(url)-1] + ')'
+    return url
+
+def config_ent(entity_value):
+    url = ''
+    for i in range(0, len(entity_value)):
+        strip = entity_value[i].strip()
+        subbed = re.sub(" ", "%20", strip)
+        url = url + subbed + ','
+    url = url[:len(url)-1]
+    return url
+
+def check_bool(param):
+    assert param == False or param == True, f"Value of parameter '{param}' must be True or False"
+    
+def entity_url_creator(ent_value, ent_or):
+    if ent_or == False:
+        join = 'cs'
+    else:
+        join = 'ov'
+    ent_url = join + '.{' + config_ent(ent_value) + '}'
+    return ent_url
+
+
+
+################################################################################################
+######################################## Main Functions ########################################
+################################################################################################
 
 def list_collections():
     """
@@ -24,7 +171,7 @@ def list_collections():
      {'corpus': 'kissinger', 'doc_cnt': 4552},
      {'corpus': 'nato', 'doc_cnt': 46002}]
     """
-    return util.hlab_results("http://api.foiarchive.org/corpora")
+    return hlab_results("http://api.foiarchive.org/corpora")
 
 
 def hlab_overview(collection = None, sort = None, entity_type = None, start_date = None, end_date = None, limit = 25, run = False):   
@@ -89,21 +236,21 @@ def hlab_overview(collection = None, sort = None, entity_type = None, start_date
       'ref_cnt': 2}]
     """
     # Checks
-    util.check_bool(run)
+    check_bool(run)
     assert isinstance(limit, int) == True, "Value of parameter 'limit' must be an integer"
     if sort != None and sort != 'asc' and sort != 'desc':
         print("Value of parameter 'sort' must be blank, 'asc' or 'desc'. Defaulting to no sort")
         sort = None
-    util.check_entity_type(entity_type)
-    util.check_date(start_date)
-    util.check_date(end_date)
-    util.check_date_range(start_date, end_date)
+    check_entity_type(entity_type)
+    check_date(start_date)
+    check_date(end_date)
+    check_date_range(start_date, end_date)
     # Create URL
     url = 'http://api.foiarchive.org/entities?entity_type=eq.' + entity_type
     if sort:
         url = url + '&order=ref_cnt.' + sort
     if collection:
-        util.check_collection(collection)
+        check_collection(collection)
         url = url + '&corpus=eq.' + collection
     if start_date and end_date:
         url = url + '&docs.authored=gte.' + start_date + '&docs.authored=lte.' + end_date
@@ -111,7 +258,7 @@ def hlab_overview(collection = None, sort = None, entity_type = None, start_date
     if run == False:
         return(url)
     else:
-        return util.hlab_results(url)
+        return hlab_results(url)
 
     
 def hlab_search(text, fields = None, join_or = False, start_date = None, end_date = None, collection = None, limit = 25, run = False):
@@ -176,27 +323,27 @@ def hlab_search(text, fields = None, join_or = False, start_date = None, end_dat
       'countries': None}]
     """
     # Checks
-    util.check_bool(run)
-    util.check_bool(join_or)
+    check_bool(run)
+    check_bool(join_or)
     assert isinstance(limit, int) == True, "Value of parameter 'limit' must be an integer"
-    util.check_fields(fields)
-    util.check_date(start_date)
-    util.check_date(end_date)
-    util.check_date_range(start_date, end_date)
+    check_fields(fields)
+    check_date(start_date)
+    check_date(end_date)
+    check_date_range(start_date, end_date)
     # Create URL
     url = "http://api.foiarchive.org/documents?"
-    text = util.convert_to_list(text)
-    search = util.config_search(text, join_or)
+    text = convert_to_list(text)
+    search = config_search(text, join_or)
     url = url + search + "&select="
     if not fields:
         fields = ['doc_id', 'authored', 'title']
     else:
-        fields = util.convert_to_list(fields)
+        fields = convert_to_list(fields)
     for i in fields:
         url = url + i + ","
     url = url[:len(url)-1] 
     if collection:
-        util.check_collection(collection)
+        check_collection(collection)
         url = url + '&corpus=eq.' + collection
     if start_date and end_date:
         url = url + '&docs.authored=gte.' + start_date + '&docs.authored=lte.' + end_date
@@ -204,7 +351,7 @@ def hlab_search(text, fields = None, join_or = False, start_date = None, end_dat
     if run == False:
         return(url)
     else:
-        return util.hlab_results(url)
+        return hlab_results(url)
     
     
 def find_entity_id(entity_type, value = None):
@@ -245,7 +392,7 @@ def find_entity_id(entity_type, value = None):
     """
     if not entity_type:
         raise Exception("Please supply an entity: country, topic, and/or person")
-    util.check_entity_type(entity_type)
+    check_entity_type(entity_type)
     if not value:
         raise Exception("Please supply a value for the entity")
     if entity_type == 'country':
@@ -255,7 +402,7 @@ def find_entity_id(entity_type, value = None):
     elif entity_type == 'person':
         search = "persons?full_name=ilike.*" + value + "*&select=full_name,person_id"
     url = "http://api.foiarchive.org/" + search
-    return util.hlab_results(url)
+    return hlab_results(url)
 
 
 def hlab_entity(country = None, topic = None, person = None, country_or = False, topic_or = False, person_or = False, fields = None, 
@@ -337,19 +484,19 @@ def hlab_entity(country = None, topic = None, person = None, country_or = False,
       'ref_cnt': 247}]
     """
     # Checks
-    util.check_bool(run)
-    util.check_bool(country_or)
-    util.check_bool(topic_or)
-    util.check_bool(person_or)
-    util.check_bool(summary)
+    check_bool(run)
+    check_bool(country_or)
+    check_bool(topic_or)
+    check_bool(person_or)
+    check_bool(summary)
     assert isinstance(limit, int) == True, "Value of parameter 'limit' must be an integer"
-    util.check_fields(fields)
+    check_fields(fields)
     if date and (start_date or end_date):
         raise Exception("You cannot specify both a date and a start or end date")
-    util.check_date(start_date)
-    util.check_date(end_date)
-    util.check_date(date)
-    util.check_date_range(start_date, end_date)
+    check_date(start_date)
+    check_date(end_date)
+    check_date(date)
+    check_date_range(start_date, end_date)
     if not country and not topic and not person:
         raise Exception("No entities provided, please supply at least one entity in the country, topics and/or person fields")
     if summary == True and (date or start_date or end_date):
@@ -359,19 +506,19 @@ def hlab_entity(country = None, topic = None, person = None, country_or = False,
     if summary == False:
         url = url + 'documents?'
         if country:
-            country = util.convert_to_list(country)
-            url = url + 'countries=' + util.entity_url_creator(country, country_or) + '&'
+            country = convert_to_list(country)
+            url = url + 'countries=' + entity_url_creator(country, country_or) + '&'
         if topic:
-            topic = util.convert_to_list(topic)
-            url = url + 'topics=' + util.entity_url_creator(topic, topic_or) + '&'
+            topic = convert_to_list(topic)
+            url = url + 'topics=' + entity_url_creator(topic, topic_or) + '&'
         if person:
-            person = util.convert_to_list(person)
-            url = url + 'person_ids=' + util.entity_url_creator(person, person_or) + '&'
+            person = convert_to_list(person)
+            url = url + 'person_ids=' + entity_url_creator(person, person_or) + '&'
         url = url[:len(url)-1]
         if not fields:
             fields = ['doc_id', 'authored', 'title']
         else:
-            fields = util.convert_to_list(fields)
+            fields = convert_to_list(fields)
         url = url + '&select='
         for i in fields:
             url = url + i + ","
@@ -380,28 +527,28 @@ def hlab_entity(country = None, topic = None, person = None, country_or = False,
         if not country:
             count_country = 0
         else:
-            country = util.convert_to_list(country)
+            country = convert_to_list(country)
             count_country = len(country)
         if not topic:
             count_topic = 0
         else:
-            topic = util.convert_to_list(topic)
+            topic = convert_to_list(topic)
             count_topic = len(topic)
         if not person:
             count_person = 0
         else:
-            person = util.convert_to_list(person)
+            person = convert_to_list(person)
             count_person = len(person)
         if count_country + count_topic + count_person > 1:
             raise Exception("Only a single entity value may be used with a summary search")
         if country:
-            url = url + "entities?entity_type=eq.country&entity_name=ilike.*" + util.config_ent(country) + "*"
+            url = url + "entities?entity_type=eq.country&entity_name=ilike.*" + config_ent(country) + "*"
         if topic:
-            url = url + "entities?entity_type=topic&entity_name=ilike.*" + util.config_ent(topic) + "*"
+            url = url + "entities?entity_type=topic&entity_name=ilike.*" + config_ent(topic) + "*"
         if person:
-            url = url + "entities?entity_type=person&entity_name=ilike.*" + util.config_ent(person) + "*"
+            url = url + "entities?entity_type=person&entity_name=ilike.*" + config_ent(person) + "*"
     if collection:
-        util.check_collection(collection)
+        check_collection(collection)
         url = url + '&corpus=eq.' + collection
     if summary == False:
         if date:
@@ -412,7 +559,7 @@ def hlab_entity(country = None, topic = None, person = None, country_or = False,
     if run == False:
         return(url)
     else:
-        return util.hlab_results(url)
+        return hlab_results(url)
     
     
 def hlab_date(date = None, start_date = None, end_date = None, fields = None, collection = None, limit = 25, run = False):
@@ -482,15 +629,15 @@ def hlab_date(date = None, start_date = None, end_date = None, fields = None, co
       'title': '[From the Journal des Debats, April 29, 1865.]'}]
     """
     # Checks
-    util.check_bool(run)
+    check_bool(run)
     assert isinstance(limit, int) == True, "Value of parameter 'limit' must be an integer"
-    util.check_fields(fields)
+    check_fields(fields)
     if date and (start_date or end_date):
         raise Exception("You cannot specify both a date and a start or end date")
-    util.check_date(start_date)
-    util.check_date(end_date)
-    util.check_date(date)
-    util.check_date_range(start_date, end_date)
+    check_date(start_date)
+    check_date(end_date)
+    check_date(date)
+    check_date_range(start_date, end_date)
     # Create URL
     url = "http://api.foiarchive.org/documents?"
     if date:
@@ -500,19 +647,19 @@ def hlab_date(date = None, start_date = None, end_date = None, fields = None, co
     if not fields:
         fields = ['doc_id', 'authored', 'title']
     else:
-        fields = util.convert_to_list(fields)
+        fields = convert_to_list(fields)
     url = url + '&select='
     for i in fields:
         url = url + i + ","
     url = url[:len(url)-1]
     if collection:
-        util.check_collection(collection)
+        check_collection(collection)
         url = url + '&corpus=eq.' + collection
     url = url + '&limit=' + str(limit)
     if run == False:
         return(url)
     else:
-        return util.hlab_results(url)
+        return hlab_results(url)
     
     
 def hlab_id(ids, fields = None, run = False):
@@ -564,18 +711,18 @@ def hlab_id(ids, fields = None, run = False):
        'United States']}]
     """
     # Checks
-    util.check_bool(run)
-    util.check_fields(fields)
+    check_bool(run)
+    check_fields(fields)
     # Create URL
     url = "http://api.foiarchive.org/documents?doc_id=in.("
-    ids = util.convert_to_list(ids)
+    ids = convert_to_list(ids)
     for i in ids:
         url = url + i + ","
     url = url[:len(url)-1] + ")"
     if not fields:
         fields = ['doc_id', 'authored', 'title']
     else:
-        fields = util.convert_to_list(fields)
+        fields = convert_to_list(fields)
     url = url + '&select='
     for i in fields:
         url = url + i + ","
@@ -583,4 +730,4 @@ def hlab_id(ids, fields = None, run = False):
     if run == False:
         return(url)
     else:
-        return util.hlab_results(url)
+        return hlab_results(url)

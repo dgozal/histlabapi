@@ -2,8 +2,6 @@
 version: 2
 
 # Image to use
-build:
-  image: testing
 
 # Configuration
 python:

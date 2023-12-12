@@ -1,7 +1,7 @@
 <div align="center">
   <img src="http://history-lab.org/images/new-paper-stack.png"><br>
 </div>
-<h3 align="center"><font size = "6">History as Data Science</font></h3>
+<h3 align="center"><font size = "10">History as Data Science</font></h3>
 
 -----------------
 
@@ -12,7 +12,7 @@ The [History Lab](http://history-lab.org/) focuses on digitizing historical docu
 Traversing any large database of this sort can be tedious though. `histlabapi` is a Python library that aims to solve this, making it easier for users to access data from the History Lab's database by wrapping around the History Lab's API. 
 
 ## Installation
-Installation is quite straightforward with pip. This package is only compatible with Python 3.9+ due to its usage of the [`requests`](https://requests.readthedocs.io/en/latest/) dependency and its reliance on [`sphinx`](https://www.sphinx-doc.org/en/master/) to generate its documentation.
+Installation is quite straightforward with pip. This package is only compatible with Python 3.8+ due to its usage of the [`requests`](https://requests.readthedocs.io/en/latest/) dependency and its reliance on [`sphinx`](https://www.sphinx-doc.org/en/master/) to generate its documentation.
 
 ```bash
 $ pip install histlabapi
