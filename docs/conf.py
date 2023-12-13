@@ -24,6 +24,7 @@ source_suffix = {
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+myst_heading_anchors = 3
 
 
 

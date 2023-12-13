@@ -1,10 +1,13 @@
 [tool.poetry]
 name = "histlabapi"
-version = "0.1.4"
+version = "0.1.0"
 description = "A Python library that makes it easy for users to access data from the Columbia History Lab's database by functioning as a wrapper around the History Lab's API."
 authors = ["Derrick Gozal"]
 license = "MIT"
 readme = "README.md"
+documentation = 'https://histlabapi.readthedocs.io'
+homepage = "https://github.com/dgozal/histlabapi"
+repository = "https://github.com/dgozal/histlabapi"
 
 [tool.poetry.dependencies]
 python = "^3.9"
