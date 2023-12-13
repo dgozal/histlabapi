@@ -25,9 +25,9 @@ from histlabapi import histlabapi
 
 ## Usage
 
-Before getting to extracting documents left and right, its important to get some bearing on how the History Lab stores and structures its various documents. As such, I've compiled a quick guide where one can look up the various collections and fields that you can access through this API [here](https://histlabapi.readthedocs.io/en/latest/database.html)!
+Before extracting documents left and right, its important to get some bearing on how the History Lab stores and structures its various documents. As such, I've compiled a quick guide where one can look up the various collections and fields that you can access through this API [here](https://histlabapi.readthedocs.io/en/latest/database.html).
 
-Once that's settled, one can use this package's various functions to extract information in all kinds of ways:
+Once that's settled, you can use this package's various functions to extract information in all kinds of ways:
 - An [overview](https://histlabapi.readthedocs.io/en/latest/usage.html#list-collections) of all the collections currently available in the API
 - [Listing](https://histlabapi.readthedocs.io/en/latest/usage.html#entity-overview) all the entities of a certain type that appear across all collections
 - Searching and extracting documents by [text](https://histlabapi.readthedocs.io/en/latest/usage.html#search-by-text), [entity](https://histlabapi.readthedocs.io/en/latest/usage.html#search-by-entity), [date](https://histlabapi.readthedocs.io/en/latest/usage.html#search-by-date) or [document ID](https://histlabapi.readthedocs.io/en/latest/usage.html#search-by-document-id)
