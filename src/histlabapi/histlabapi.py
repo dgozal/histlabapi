@@ -254,7 +254,7 @@ def hlab_overview(collection = None, sort = None, entity_type = None, start_date
         check_collection(collection)
         url = url + '&corpus=eq.' + collection
     if start_date and end_date:
-        url = url + '&docs.authored=gte.' + start_date + '&docs.authored=lte.' + end_date
+        url = url + '&authored=gte.' + start_date + '&authored=lte.' + end_date
     url = url + '&limit=' + str(limit)
     if run == False:
         return(url)
@@ -351,7 +351,7 @@ def hlab_search(text, fields = None, join_or = False, start_date = None, end_dat
         check_collection(collection)
         url = url + '&corpus=eq.' + collection
     if start_date and end_date:
-        url = url + '&docs.authored=gte.' + start_date + '&docs.authored=lte.' + end_date
+        url = url + '&authored=gte.' + start_date + '&authored=lte.' + end_date
     url = url + '&limit=' + str(limit)
     if run == False:
         return(url)
@@ -564,7 +564,7 @@ def hlab_entity(country = None, topic = None, person = None, country_or = False,
         if date:
             url = url + '&authored=eq.' + date
         if start_date and end_date:
-            url = url + '&docs.authored=gte.' + start_date + '&docs.authored=lte.' + end_date
+            url = url + '&authored=gte.' + start_date + '&authored=lte.' + end_date
     url = url + '&limit=' + str(limit)
     if run == False:
         return(url)
@@ -658,7 +658,7 @@ def hlab_date(date = None, start_date = None, end_date = None, fields = None, co
     if date:
             url = url + '&authored=eq.' + date
     if start_date and end_date:
-        url = url + '&docs.authored=gte.' + start_date + '&docs.authored=lte.' + end_date
+        url = url + '&authored=gte.' + start_date + '&authored=lte.' + end_date
     if not fields:
         fields = ['doc_id', 'authored', 'title']
     else:
